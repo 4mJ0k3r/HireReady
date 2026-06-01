@@ -2,6 +2,8 @@
 
 HireMate is an AI interview preparation platform for candidates who want realistic practice before facing a real hiring panel. It combines resume understanding, role-aware interview questions, voice-enabled practice, readiness scoring, and job discovery in one workspace.
 
+Live App: https://hiremate-ymxd.onrender.com/
+
 The project is built as a full-stack web app with companion desktop and mobile wrappers, so the same experience can be used from a browser, Windows installer, or Android app.
 
 ## What HireMate Does
@@ -194,6 +196,8 @@ flutter run
 
 The project includes Docker and Render configuration for a combined Nginx + FastAPI deployment.
 
+Production URL: https://hiremate-ymxd.onrender.com/
+
 ```powershell
 docker build -t hiremate .
 docker run -p 80:80 hiremate
@@ -205,7 +209,7 @@ The container serves the frontend through Nginx and proxies API requests to the 
 
 ```text
 Demo Video: https://drive.google.com/drive/folders/1A7ZD9fRPk11QmCELHwnvSvv9gxTFdGTU?usp=sharing
-Live App: add hosted URL here, if available
+Live App: https://hiremate-ymxd.onrender.com/
 ```
 
 ## License
