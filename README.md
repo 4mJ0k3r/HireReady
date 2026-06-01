@@ -201,14 +201,10 @@ docker run -p 80:80 hiremate
 
 The container serves the frontend through Nginx and proxies API requests to the FastAPI backend.
 
-## Notes For Hackathon Submission
-
-Before final submission, add a working screen-recording video link here. The problem statement requires the README to include a live project demo video.
-
-Suggested format:
+## Tutorial Video
 
 ```text
-Demo Video: add your public video link here
+Demo Video: https://drive.google.com/drive/folders/1A7ZD9fRPk11QmCELHwnvSvv9gxTFdGTU?usp=sharing
 Live App: add hosted URL here, if available
 ```
 
