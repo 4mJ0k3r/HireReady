@@ -16,38 +16,20 @@ services:
       - key: JWT_ALGORITHM
         value: HS256
       - key: JWT_EXPIRATION_SECONDS
-        value: 7200
+        value: 2400
       - key: MISTRAL_API_KEY
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_STT_MODEL
+        value: whisper-large-v3-turbo
+      - key: SESSION_MAX_QUESTIONS
+        value: 20
+      - key: INTERVIEW_DEFAULT_QUESTIONS
+        value: 10
       - key: RATE_LIMIT_PER_MINUTE
         value: 60
-      - key: EMAILJS_PUBLIC_KEY
+      - key: ADMIN_INVITE_CODE
         sync: false
-      - key: EMAILJS_SERVICE_ID
-        sync: false
-      - key: EMAILJS_TEMPLATE_ID
-        sync: false
-      - key: ADMIN_EMAILJS_PUBLIC_KEY
-        sync: false
-      - key: ADMIN_EMAILJS_SERVICE_ID
-        sync: false
-      - key: ADMIN_EMAILJS_TEMPLATE_ID
-        sync: false
-      - key: ADMIN_ALERT_EMAILJS_PUBLIC_KEY
-        sync: false
-      - key: ADMIN_ALERT_EMAILJS_SERVICE_ID
-        sync: false
-      - key: ADMIN_ALERT_EMAILJS_TEMPLATE_ID
-        sync: false
-      - key: FORGOT_PASSWORD_EMAILJS_PUBLIC_KEY
-        sync: false
-      - key: FORGOT_PASSWORD_EMAILJS_SERVICE_ID
-        sync: false
-      - key: FORGOT_PASSWORD_EMAILJS_TEMPLATE_ID
-        sync: false
-      - key: FORGOT_PASSWORD_EMAILJS_ACCESS_TOKEN
-        sync: false
-      - key: CAREERJET_API_KEY
-        sync: false
-      - key: CAREERJET_WIDGET_ID
-        sync: false
+      - key: ENABLE_TEST_CREDENTIALS
+        value: false
