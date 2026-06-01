@@ -32,4 +32,8 @@ services:
       - key: ADMIN_INVITE_CODE
         sync: false
       - key: ENABLE_TEST_CREDENTIALS
-        value: false
+        value: true
+      - key: TEST_USER_EMAIL
+        value: test@example.com
+      - key: TEST_USER_PASSWORD
+        value: Test123!
