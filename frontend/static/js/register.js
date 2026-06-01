@@ -42,11 +42,11 @@ const app = createApp({
         showTerms() { window.icp.showTerms(); },
         showPrivacy() { window.icp.showPrivacy(); },
         promptFields() {
-            if (!this.form.email || !this.form.password || !this.form.confirmPassword || !this.form.agreed) {
+            if (!this.form.name || !this.form.email || !this.form.password || !this.form.confirmPassword || !this.form.agreed) {
                 Swal.fire({
                     icon: 'info',
                     title: 'Incomplete Registration',
-                    text: 'Please fill in all required fields (Email, Password, Confirm Password) and agree to the terms to create your account.',
+                    text: 'Please fill in all required fields (Name, Email, Password, Confirm Password) and agree to the terms to create your account.',
                     confirmButtonColor: '#8b5cf6'
                 });
             } else if (!this.passwordsMatch) {
@@ -116,7 +116,12 @@ const app = createApp({
             }
             
             // Validation
-            if (this.form.name && !/^[A-Za-z\s]*$/.test(this.form.name)) {
+            if (!this.form.name.trim()) {
+                Swal.fire({ icon: 'error', title: 'Name Required', text: 'Please enter your name.', confirmButtonColor: '#8b5cf6' });
+                return;
+            }
+
+            if (!/^[A-Za-z\s]*$/.test(this.form.name)) {
                 Swal.fire({ icon: 'error', title: 'Invalid Name', text: 'Name can only contain alphabets and spaces.', confirmButtonColor: '#8b5cf6' });
                 return;
             }
@@ -194,53 +199,18 @@ const app = createApp({
                 });
                 
                 const res = response.data;
-                const email = res.email;
-                const otp = res.otp;
-                
-                // Calculate expiry time (MYT)
-                const now = new Date();
-                const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-                const mytTime = new Date(utc + (3600000 * 8));
-                mytTime.setMinutes(mytTime.getMinutes() + 15);
-                const expiryTime = mytTime.toLocaleTimeString('en-GB', { 
-                  hour: '2-digit', 
-                  minute: '2-digit',
-                  hour12: false 
-                });
-                
-                const result = await sendVerificationEmail(email, otp, expiryTime);
-                
                 localStorage.removeItem('reg_name');
                 localStorage.removeItem('reg_email');
-                
-                if (result.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'OTP Sent Successfully',
-                        html: `
-                            <div class='text-center'>
-                              <p>A verification code has been sent to:</p>
-                              <p class='fw-bold text-primary'>${email}</p>
-                              <p class='small' style="color: #475569; font-weight: 500;">Please check your inbox (and spam folder) to complete your registration.</p>
-                            </div>
-                        `,
-                        confirmButtonText: 'Enter OTP',
-                        confirmButtonColor: '#8b5cf6'
-                    }).then(() => {
-                        window.location = '/static/pages/verify.html?email=' + encodeURIComponent(email);
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        iconHtml: 'i',
-                        title: 'Email Sending Failed',
-                        text: 'Account created, but we couldn\'t send the email: ' + result.error + '. Please contact support.',
-                        confirmButtonText: 'I understand',
-                        confirmButtonColor: '#8b5cf6'
-                    }).then(() => {
-                        window.location = '/static/pages/verify.html?email=' + encodeURIComponent(email);
-                    });
-                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Account Created',
+                    text: res.message || 'Your account is ready. You can now login.',
+                    confirmButtonText: 'Login',
+                    confirmButtonColor: '#8b5cf6'
+                }).then(() => {
+                    window.location = '/static/pages/login.html';
+                });
                 
             } catch (error) {
                 let msg = 'Registration failed';

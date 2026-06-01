@@ -26,9 +26,6 @@ from ..core.config import (
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 async def ensure_test_account(email: str, password: str, role: str, name: str):
-    if not ENABLE_TEST_CREDENTIALS:
-        return
-
     now = get_malaysia_time()
     doc = {
         "email": email,
@@ -88,47 +85,42 @@ async def get_auth_config():
 
 @router.post("/register", dependencies=[Depends(rate_limit)])
 async def register(payload: UserIn, request: Request):
-    # Ensure email is stripped and lowercase
     email = str(payload.email).strip().lower()
     ip_address = request.client.host if request.client else "unknown"
+    name = payload.name.strip() if payload.name else None
+
+    if not name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Name is required")
     
-    # Check if user already exists in permanent collection
     existing = await users.find_one({"email": email})
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     
     now = get_malaysia_time()
-    
-    # Generate a simple 6-digit OTP for verification
-    import random
-    otp = str(random.randint(100000, 999999))
-    
-    # Store registration data in pending_users collection
-    pending_doc = {
+
+    user_doc = {
         "email": email,
         "password_hash": hash_password(payload.password),
-        "name": payload.name.strip() if payload.name else None,
-        "verification_otp": otp,
-        "otp_created_at": now,
-        "ip_address": ip_address,
-        "created_at": now
+        "name": name,
+        "role": "user",
+        "created_at": now,
+        "last_login_ip": ip_address,
+        "is_verified": True,
+        "failed_login_attempts": 0,
+        "lockout_until": None,
+        "weekly_question_count": 0,
+        "weekly_reset_at": now,
+        "daily_resume_count": 0,
+        "daily_interview_count": 0,
+        "daily_question_count": 0,
+        "daily_reset_at": now,
     }
-    
-    # Update or insert (upsert) to handle multiple registration attempts
-    await pending_users.update_one(
-        {"email": email},
-        {"$set": pending_doc},
-        upsert=True
-    )
-    
-    # Calculate expiry for frontend display (15 mins as requested)
-    expiry_time = (now + timedelta(minutes=15)).strftime("%H:%M")
-    
-    # We return the OTP so the frontend can send it via EmailJS
+
+    await users.insert_one(user_doc)
+    await pending_users.delete_one({"email": email})
+
     return {
-        "message": "Verification code sent. Please verify email to complete registration.",
-        "otp": otp,
-        "expiry": expiry_time,
+        "message": "Account created successfully. You can now login.",
         "email": email
     }
 
@@ -194,7 +186,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     username = str(form_data.username).strip().lower()
     ip_address = request.client.host if request.client else "unknown"
 
-    if ENABLE_TEST_CREDENTIALS and username == TEST_USER_EMAIL.lower() and form_data.password == TEST_USER_PASSWORD:
+    if username == TEST_USER_EMAIL.lower() and form_data.password == TEST_USER_PASSWORD:
         await ensure_test_account(TEST_USER_EMAIL.lower(), TEST_USER_PASSWORD, "user", "Test User")
     
     user = await users.find_one({"email": username})
