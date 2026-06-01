@@ -3,6 +3,7 @@
 # Start Uvicorn in the background
 # We bind to 127.0.0.1 because Nginx is in the same container and will proxy to it
 # We use port 8000 for the backend
+# We set log level to warning to reduce noise in the logs
 echo "Starting Uvicorn..."
 uvicorn backend.main:app --host 127.0.0.1 --port 8000 --log-level warning &
 PID_UVICORN=$!

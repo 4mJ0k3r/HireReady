@@ -3,7 +3,7 @@ FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
-
+#Install it for poppler-utils
 # Install system dependencies including Nginx, curl, and Tesseract for OCR
 RUN apt-get update && apt-get install -y \
     nginx \
