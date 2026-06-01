@@ -1,8 +1,6 @@
-const CACHE_NAME = 'icp-cache-v3';
+const CACHE_NAME = 'icp-cache-v7';
 const ASSETS_TO_CACHE = [
   '/',
-  '/static/css/styles.css',
-  '/static/js/app.js',
   '/static/images/favicon-32x32.png',
   '/static/pages/dashboard.html',
   '/static/pages/resume_builder.html',

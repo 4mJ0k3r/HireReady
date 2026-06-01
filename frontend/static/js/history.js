@@ -267,8 +267,8 @@ const app = createApp({
         toMalaysiaTime(utcString) {
             if (!utcString) return 'Unknown';
             const date = new Date(utcString);
-            return new Intl.DateTimeFormat('en-MY', {
-                timeZone: 'Asia/Kuala_Lumpur',
+            return new Intl.DateTimeFormat('en-IN', {
+                timeZone: 'Asia/Kolkata',
                 year: 'numeric',
                 month: '2-digit',
                 day: '2-digit',

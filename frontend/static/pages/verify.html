@@ -10,17 +10,17 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="stylesheet" href="/static/css/styles.css?v=2.0">
 </head>
 <body class="auth-page">
   <!-- Scripts at start of body for faster execution -->
-  <script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js?v=1.5"></script>
 
   <nav class="navbar navbar-dark glass-nav">
     <div class="container d-flex align-items-center">
       <div class="d-flex align-items-center gap-3">
         <a class="navbar-brand fw-bold fs-4 mb-0 me-0" href="/">
-          <span class="text-primary">I</span>CP
+          <span class="text-primary">H</span>ireMate
         </a>
         <a class="btn btn-outline-light btn-sm px-3" href="/static/pages/register.html">Register</a>
       </div>
@@ -31,8 +31,11 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
         <div class="auth-card p-4 p-md-5 animate-fade-in">
-          <h2 class="auth-header mb-2">Verify Your Email</h2>
-          <p class="text-secondary mb-4 small">Please enter the 6-digit OTP sent to your email.</p>
+          <div class="text-center mb-4">
+            <span class="auth-icon mb-3"><i class="bi bi-envelope-check"></i></span>
+            <h2 class="auth-header mb-1">Verify Your Email</h2>
+            <p class="text-secondary mb-0 small">Please enter the 6-digit OTP sent to your email.</p>
+          </div>
           
           <form @submit.prevent="submit">
             <div class="mb-4">

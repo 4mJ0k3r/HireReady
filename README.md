@@ -1,85 +1,217 @@
-# ICP - Interview Coach Prep 🚀
+# HireMate
 
-ICP is an AI-powered career preparation platform designed to help job seekers master their interview skills and optimize their professional profiles. By combining advanced AI analysis with real-world job data, ICP provides a comprehensive ecosystem for career advancement.
+HireMate is an AI interview preparation platform for candidates who want realistic practice before facing a real hiring panel. It combines resume understanding, role-aware interview questions, voice-enabled practice, readiness scoring, and job discovery in one workspace.
 
-## 🌟 Key Features 
+The project is built as a full-stack web app with companion desktop and mobile wrappers, so the same experience can be used from a browser, Windows installer, or Android app.
 
-### 1. AI Resume Analysis & Builder
-*   **Intelligent Scoring**: Get a 0-100 score based on industry standards.
-*   **Resume Builder**: Dynamic form with auto-expanding fields (Professional Summary, Achievements, Skills) for easy editing.
-*   **Semantic Validation**: Ensures only valid professional resumes are processed.
-*   **Structured Feedback**: Detailed breakdown of Advantages, Disadvantages, and actionable Suggestions.
-*   **Keyword Extraction**: Automatically identifies 10-15 essential skills from your text.
-*   **PDF Reports**: Export your analysis results into a professional PDF report.
+## What HireMate Does
 
-### 2. Mock Interview Simulator
-*   **Dynamic Questions**: AI generates role-specific technical and behavioral questions.
-*   **Adaptive Difficulty**: Choose between Beginner, Intermediate, and Advanced levels.
-*   **Voice Integration**: Practice using your microphone with AI-powered speech-to-text (STT) and text-to-speech (TTS).
-*   **Real-time Interaction**: Seamless conversation flow with AI interviewers.
-*   **Readiness Scoring**: Receive an "Interview Readiness Score" and detailed performance feedback after each session.
+HireMate helps a candidate move through the preparation loop:
 
-### 3. Smart Job Search
-*   **Tailored Results**: Job recommendations based on your AI-detected skills and job title.
-*   **Careerjet Integration**: Access thousands of real-time job listings directly through the dashboard.
-*   **Location Awareness**: Automatically detects your preferred work location from your resume for localized searching.
+1. Upload or build a professional profile.
+2. Get AI feedback on resume quality, skills, role fit, and improvement areas.
+3. Start a mock interview tailored to the target role.
+4. Answer questions through text or voice.
+5. Receive an interview readiness score and feedback.
+6. Review interview history and continue improving.
+7. Search jobs that match the detected role, skills, and location.
 
-### 4. Advanced Admin Portal
-*   **Dashboard Analytics**: Monitor platform usage, user activity, and system health.
-*   **User Management**: Full control over user accounts and platform access.
-*   **File & History Oversight**: View and manage uploaded resumes and interview histories with integrated previews.
-*   **Clean UI**: Modern, responsive administrative interface with advanced filtering and pagination.
+## Core Modules
 
-## 🛠️ Tech Stack
+### Resume Intelligence
 
-*   **Frontend**: HTML5, CSS3 (Bootstrap 5), JavaScript (Vue.js 3, Axios).
-*   **Backend**: Python (FastAPI), MongoDB (Motor).
-*   **AI Framework**: **LlamaIndex** for advanced RAG (Retrieval-Augmented Generation) processing.
-*   **AI Engine**: Mistral AI (Large-latest model) for intelligent analysis and generation.
-*   **Security**: JWT Authentication, Rate Limiting, and Semantic File Validation.
-*   **Infrastructure**: Docker, Render-ready deployment.
+HireMate accepts PDF and DOCX resumes, extracts text, validates whether the document is resume-like, and returns structured feedback. The analysis includes:
 
-## 🚀 Getting Started
+- Overall resume score
+- Advantages and weak points
+- Improvement suggestions
+- Extracted keywords
+- Detected target role
+- Location hints
+- Contact, education, experience, project, skill, certification, and language sections
 
-### Prerequisites
-*   Python 3.10+
-*   MongoDB
-*   Mistral AI API Key
+Candidates can also use the guided profile builder when a scanned or image-heavy resume cannot be parsed reliably.
 
-### Installation
+### Mock Interview Engine
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/ErnestEZY/interview_coach_prep.git
-   cd interview_coach_prep
-   ```
+The interview module generates role-aware questions using the candidate profile and target job title. It supports:
 
-2. **Set up environment variables**:
-   Create a `.env` file in the root directory:
-   ```env
-   MISTRAL_API_KEY=your_key_here
-   MONGO_URI=your_mongodb_uri
-   JWT_SECRET=your_secret_key
-   ```
+- Technical questions
+- Behavioral questions
+- Situational prompts
+- Problem-solving questions
+- Beginner, Intermediate, and Advanced difficulty modes
+- Interview history
+- Early session ending
+- Readiness scoring at completion
+- Voice input and text-to-speech output in supported browsers/devices
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
+### Job Search
 
-4. **Run the application**:
-   ```bash
-   python backend/main.py
-   ```
-   The backend will start on `http://localhost:8000`.
+HireMate includes a Careerjet-backed job search flow that can use the candidate's detected role and location to help find relevant listings.
 
-## 📱 Mobile & Desktop Apps
+### Admin Portal
 
-*   **Mobile App**: A cross-platform mobile application built with **Flutter**, located in the `mobile_app/` directory.
-*   **Desktop App**: A native desktop application built with **Tauri**, located in the `src-tauri/` directory. See [DESKTOP_APP.md](DESKTOP_APP.md) for setup instructions.
+The admin experience provides protected access for reviewing saved candidate submissions. Admins can:
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+- View saved resumes and extracted text
+- Preview uploaded files
+- Filter by status or tags
+- Update notes and review status
+- Delete stored submissions
+- View basic platform metrics
 
----
-*Built with ❤️ for better career preparation.*
+## Tech Stack
+
+| Area | Technology |
+| --- | --- |
+| Backend | FastAPI, Python, Motor, MongoDB |
+| Frontend | HTML, CSS, Bootstrap, Vue 3, Axios |
+| AI | Mistral AI |
+| Resume parsing | python-docx, pypdf, pdfminer, pdfplumber, OCR fallback |
+| Auth | JWT, bcrypt password hashing |
+| Rate control | SlowAPI plus custom daily quotas |
+| Desktop wrapper | Tauri |
+| Mobile wrapper | Flutter WebView |
+| Deployment | Docker, Nginx, Render configuration |
+
+## Repository Layout
+
+```text
+backend/        FastAPI app, API routes, services, models, database setup
+frontend/       Static web UI, pages, JavaScript, styles, PWA files
+mobile_app/     Flutter WebView app for mobile packaging
+src-tauri/      Tauri desktop wrapper
+apps/           Built APK/MSI artifacts
+Dockerfile      Container build for backend + Nginx frontend serving
+render.yaml     Render deployment configuration
+```
+
+## Local Setup
+
+### Requirements
+
+- Python 3.10 or newer
+- MongoDB connection string
+- Mistral API key for live AI responses
+- Node.js and Rust only if you want to build the Tauri desktop app
+- Flutter only if you want to rebuild the mobile app
+
+### Environment
+
+Create a `.env` file in the project root. You can start from `.env.example`.
+
+Minimum useful values:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+DB_NAME=interview_coach
+JWT_SECRET=replace_with_a_strong_secret
+JWT_ALGORITHM=HS256
+MISTRAL_API_KEY=your_mistral_api_key
+```
+
+Local demo credentials are available through:
+
+```env
+ENABLE_TEST_CREDENTIALS=true
+TEST_USER_EMAIL=test@example.com
+TEST_USER_PASSWORD=Test123!
+TEST_ADMIN_EMAIL=admin@icp-solution.com
+TEST_ADMIN_PASSWORD=Admin123!
+TEST_ADMIN_INVITE_CODE=ICP-DEMO-ADMIN
+```
+
+Disable demo credentials before production deployment.
+
+## Run Locally
+
+From the repository root:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+If you are not using the existing virtual environment, install dependencies first:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+```
+
+## Demo Login
+
+User account:
+
+```text
+Email: test@example.com
+Password: Test123!
+```
+
+Admin account:
+
+```text
+URL: http://127.0.0.1:8000/static/pages/icp-admin-auth-9f2d8b4e.html
+Email: admin@icp-solution.com
+Password: Admin123!
+Invite Code: ICP-DEMO-ADMIN
+```
+
+## Desktop App
+
+The desktop wrapper is powered by Tauri and points to the existing frontend files.
+
+```powershell
+npm install
+npm run tauri dev
+```
+
+To build an installer:
+
+```powershell
+npm run tauri build
+```
+
+More details are available in `DESKTOP_APP.md`.
+
+## Mobile App
+
+The mobile app lives in `mobile_app/` and uses Flutter WebView to load the deployed HireMate experience.
+
+```powershell
+cd mobile_app
+flutter pub get
+flutter run
+```
+
+## Deployment
+
+The project includes Docker and Render configuration for a combined Nginx + FastAPI deployment.
+
+```powershell
+docker build -t hiremate .
+docker run -p 80:80 hiremate
+```
+
+The container serves the frontend through Nginx and proxies API requests to the FastAPI backend.
+
+## Notes For Hackathon Submission
+
+Before final submission, add a working screen-recording video link here. The problem statement requires the README to include a live project demo video.
+
+Suggested format:
+
+```text
+Demo Video: add your public video link here
+Live App: add hosted URL here, if available
+```
+
+## License
+
+This project is distributed under the MIT License. See `LICENSE` for details.

@@ -1,5 +1,56 @@
 const { createApp } = Vue;
 
+// Canonical shape of the resume model. Used both for the initial state and to
+// normalize sessions restored from localStorage, so every field/array the
+// template renders is always present (a missing array would make Vue's v-for
+// crash during render and leave the v-cloak page blank).
+function createDefaultResume() {
+    return {
+        name: 'FULL NAME',
+        title: 'Professional Title',
+        email: 'ernest@example.com',
+        phone: '+60 12-345 6789',
+        location: 'Kuala Lumpur, MY',
+        website: 'linkedin.com/in/ernestezy',
+        summary: 'Passionate software engineer with expertise in building AI-powered web applications and mobile solutions. Dedicated to bridging the experience gap through innovative technology.',
+        education: [
+            { school: 'Asia Pacific University (APU)', degree: 'BSc (Hons) in Computer Science (Intelligent Systems)', date: '2022 - 2025', gpa: '3.85/4.00', location: 'Kuala Lumpur, MY' }
+        ],
+        experience: [
+            {
+                company: 'Tech Innovators Corp',
+                position: 'Software Engineering Intern',
+                date: 'June 2024 - August 2024',
+                bullets: [
+                    'Engineered and launched a key feature for a web application, resulting in a 15% increase in user engagement.',
+                    'Reduced server response time by 25% through strategic query optimization and caching.',
+                    'Collaborated with a cross-functional team of 5 to design and deploy a new microservice.'
+                ]
+            }
+        ],
+        projects: [
+            {
+                name: 'E-commerce Recommendation Engine',
+                tech: 'Python, TensorFlow, Scikit-learn, Flask',
+                bullets: [
+                    'Increased average order value by 15% by developing a collaborative filtering model that suggested relevant products to users.',
+                    'Improved user retention by 10% by implementing a real-time, personalized product recommendation API.'
+                ]
+            }
+        ],
+        skills_tech: ['Python', 'JavaScript', 'TypeScript'],
+        skills_tools: ['Docker', 'AWS', 'Git'],
+        skills_soft: ['Leadership', 'Communication'],
+        skills_other: ['Agile Methodologies'],
+        certifications: [{ name: 'AWS Certified Cloud Practitioner (2024)' }],
+        languages: [{ name: 'English (Fluent)' }, { name: 'Malay (Native)' }],
+        extra_info: [
+            { content: 'Available for relocation.' },
+            { content: 'Active member of the Open Source community.' }
+        ]
+    };
+}
+
 try {
     const app = createApp({
         data() {
@@ -25,50 +76,7 @@ try {
                 actionVerbs: [
                     'Developed', 'Implemented', 'Designed', 'Optimized', 'Led', 'Managed', 'Created', 'Improved', 'Increased', 'Reduced', 'Analyzed', 'Engineered', 'Launched', 'Collaborated'
                 ],
-                resume: {
-                    name: 'FULL NAME',
-                    title: 'Professional Title',
-                    email: 'ernest@example.com',
-                    phone: '+60 12-345 6789',
-                    location: 'Kuala Lumpur, MY',
-                    website: 'linkedin.com/in/ernestezy',
-                    summary: 'Passionate software engineer with expertise in building AI-powered web applications and mobile solutions. Dedicated to bridging the experience gap through innovative technology.',
-                    education: [
-                        { school: 'Asia Pacific University (APU)', degree: 'BSc (Hons) in Computer Science (Intelligent Systems)', date: '2022 - 2025', gpa: '3.85/4.00', location: 'Kuala Lumpur, MY' }
-                    ],
-                    experience: [
-                        {
-                            company: 'Tech Innovators Corp',
-                            position: 'Software Engineering Intern',
-                            date: 'June 2024 - August 2024',
-                            bullets: [
-                                'Engineered and launched a key feature for a web application, resulting in a 15% increase in user engagement.',
-                                'Reduced server response time by 25% through strategic query optimization and caching.',
-                                'Collaborated with a cross-functional team of 5 to design and deploy a new microservice.'
-                            ]
-                        }
-                    ],
-                    projects: [
-                        {
-                            name: 'E-commerce Recommendation Engine',
-                            tech: 'Python, TensorFlow, Scikit-learn, Flask',
-                            bullets: [
-                                'Increased average order value by 15% by developing a collaborative filtering model that suggested relevant products to users.',
-                                'Improved user retention by 10% by implementing a real-time, personalized product recommendation API.'
-                            ]
-                        }
-                    ],
-                    skills_tech: ['Python', 'JavaScript', 'TypeScript'],
-                    skills_tools: ['Docker', 'AWS', 'Git'],
-                    skills_soft: ['Leadership', 'Communication'],
-                    skills_other: ['Agile Methodologies'],
-                    certifications: [{ name: 'AWS Certified Cloud Practitioner (2024)' }],
-                    languages: [{ name: 'English (Fluent)' }, { name: 'Malay (Native)' }],
-                    extra_info: [
-                        { content: 'Available for relocation.' },
-                        { content: 'Active member of the Open Source community.' }
-                    ]
-                }
+                resume: createDefaultResume()
             };
         },
         watch: {
@@ -118,11 +126,13 @@ try {
                 return;
             }
 
-            // Load session data if available
+            // Load session data if available. Older/partial sessions may be missing
+            // newer fields, so normalize against the default shape before assigning —
+            // otherwise undefined arrays crash the template render and the page stays blank.
             const savedResume = localStorage.getItem('resume_builder_session');
             if (savedResume) {
                 try {
-                    this.resume = JSON.parse(savedResume);
+                    this.resume = this.normalizeResume(JSON.parse(savedResume));
                     console.log("Session data restored");
                 } catch (e) {
                     console.error("Error restoring session:", e);
@@ -167,6 +177,34 @@ try {
                 if (window.handleMobileMenu) {
                     window.handleMobileMenu(this.isMobileMenuOpen);
                 }
+            },
+            // Merge a restored (possibly partial/legacy) session onto the default shape so
+            // every field the template references exists with the right type. Array sections
+            // must always be arrays, and bullet-list entries must always carry a bullets array.
+            normalizeResume(parsed) {
+                const defaults = createDefaultResume();
+                if (!parsed || typeof parsed !== 'object') return defaults;
+
+                const merged = { ...defaults, ...parsed };
+
+                ['name', 'title', 'email', 'phone', 'location', 'website', 'summary'].forEach((field) => {
+                    if (typeof merged[field] !== 'string') merged[field] = defaults[field];
+                });
+
+                ['education', 'experience', 'projects', 'skills_tech', 'skills_tools',
+                 'skills_soft', 'skills_other', 'certifications', 'languages', 'extra_info'
+                ].forEach((field) => {
+                    merged[field] = Array.isArray(parsed[field]) ? parsed[field] : [];
+                });
+
+                ['experience', 'projects'].forEach((field) => {
+                    merged[field] = merged[field].map((item) => {
+                        const safe = (item && typeof item === 'object') ? item : {};
+                        return { ...safe, bullets: Array.isArray(safe.bullets) ? safe.bullets : [''] };
+                    });
+                });
+
+                return merged;
             },
             async checkAnalysisImport() {
                 const feedbackStr = localStorage.getItem('resume_feedback');

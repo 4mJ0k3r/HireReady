@@ -1,13 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException, Form
+from fastapi import APIRouter, Depends, HTTPException, Form, File, UploadFile
 from datetime import datetime, timedelta, timezone
 from bson import ObjectId
+import logging
+import httpx
 from ..core.db import interviews, users, resumes
 from ..core.security import get_current_user
-from ..core.config import SESSION_MAX_QUESTIONS, INTERVIEW_DEFAULT_QUESTIONS, DAILY_QUESTION_LIMIT
+from ..core.config import (
+    SESSION_MAX_QUESTIONS, INTERVIEW_DEFAULT_QUESTIONS, DAILY_QUESTION_LIMIT,
+    GROQ_API_KEY, GROQ_STT_MODEL,
+)
 from ..services.interview_engine import interview_reply
 from ..services.rate_limit import rate_limit
 from ..services.utils import is_gibberish, get_malaysia_time
 from ..services.daily_limit import check_daily_limit, increment_daily_limit
+
+logger = logging.getLogger(__name__)
+
+# Groq exposes an OpenAI-compatible audio API. We forward recorded audio to it
+# for speech-to-text instead of relying on the inconsistent browser Web Speech API.
+GROQ_TRANSCRIBE_URL = "https://api.groq.com/openai/v1/audio/transcriptions"
+MAX_AUDIO_BYTES = 25 * 1024 * 1024  # Groq free-tier upload limit
 
 router = APIRouter(prefix="/api/interview", tags=["interview"])
 
@@ -15,6 +27,46 @@ router = APIRouter(prefix="/api/interview", tags=["interview"])
 async def get_interview_limits(current=Depends(get_current_user)):
     can_start, remaining = await check_daily_limit(current["id"], "daily_interview_count", 3)
     return {"remaining": remaining, "limit": 3}
+
+@router.post("/transcribe")
+async def transcribe(
+    audio: UploadFile = File(...),
+    current=Depends(get_current_user),
+    _: None = Depends(rate_limit),
+):
+    """Transcribe a recorded answer to text using Groq's Whisper model."""
+    if not GROQ_API_KEY:
+        raise HTTPException(status_code=503, detail="Speech-to-text is not configured on the server.")
+
+    content = await audio.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="No audio was provided.")
+    if len(content) > MAX_AUDIO_BYTES:
+        raise HTTPException(status_code=413, detail="Audio recording is too large.")
+
+    files = {"file": (audio.filename or "answer.webm", content, audio.content_type or "audio/webm")}
+    data = {
+        "model": GROQ_STT_MODEL,
+        "response_format": "json",
+        "language": "en",
+        "temperature": "0",
+    }
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as http_client:
+            resp = await http_client.post(GROQ_TRANSCRIBE_URL, headers=headers, data=data, files=files)
+    except httpx.HTTPError as e:
+        logger.error("Groq transcription request failed: %s", e)
+        raise HTTPException(status_code=502, detail="Could not reach the transcription service.")
+
+    if resp.status_code != 200:
+        logger.error("Groq transcription error %s: %s", resp.status_code, resp.text[:500])
+        detail = "Rate limit reached, please try again shortly." if resp.status_code == 429 else "Transcription failed."
+        raise HTTPException(status_code=502, detail=detail)
+
+    text = (resp.json() or {}).get("text", "").strip()
+    return {"text": text}
 
 async def can_ask(user_id: str) -> bool:
     # Use the daily_limit service to handle reset logic
@@ -78,11 +130,11 @@ async def start(
             raise HTTPException(status_code=400, detail="Analyze resume first to start interview")
             
     if not await can_ask(current["id"]):
-        raise HTTPException(status_code=429, detail="Daily question quota reached (60 questions per day). Resets at 00:00 Malaysia Time.")
+        raise HTTPException(status_code=429, detail="Daily question quota reached (60 questions per day). Resets at 00:00 IST.")
     
     can_start, _ = await check_daily_limit(current["id"], "daily_interview_count", 3)
     if not can_start:
-        raise HTTPException(status_code=429, detail="Daily interview session limit reached. Resets at 00:00 Malaysia Time.")
+        raise HTTPException(status_code=429, detail="Daily interview session limit reached. Resets at 00:00 IST.")
     
     try:
         ai = interview_reply([], job_title=job_title, resume_feedback=feedback_dict, questions_limit=questions_limit, difficulty=difficulty, current_asked_count=0)
@@ -160,7 +212,7 @@ async def reply(session_id: str, user_text: str = Form(...), current=Depends(get
             return {"message": explain, "ended": True}
         return {"message": msg}
     if not await can_ask(current["id"]):
-        raise HTTPException(status_code=429, detail="Daily question quota reached (60 questions per day). Resets at 00:00 Malaysia Time.")
+        raise HTTPException(status_code=429, detail="Daily question quota reached (60 questions per day). Resets at 00:00 IST.")
     history = [{"role": t["role"], "content": t["text"]} for t in s.get("transcript", [])]
     history.append({"role": "user", "content": user_text})
     

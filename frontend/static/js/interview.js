@@ -26,7 +26,13 @@ const app = createApp({
             recording: false,
             thinking: false,
             speaking: false,
-            recognition: null,
+            speechSupported: false,
+            transcribing: false,
+            mediaRecorder: null,
+            audioChunks: [],
+            micStream: null,
+            _submitAfterStop: false,
+            _discardRecording: false,
             
             // Resume/Job Context
             hasResume: false,
@@ -111,6 +117,13 @@ const app = createApp({
         },
         interviewTime(newVal) {
             try { localStorage.setItem('interview_remaining_time', newVal); } catch (_) {}
+        },
+        // Keep the chat scrolled to the newest message as transcript items are added
+        transcript: {
+            handler() {
+                this.$nextTick(() => this.scrollChatToBottom());
+            },
+            deep: true
         }
     },
     mounted() {
@@ -170,11 +183,16 @@ const app = createApp({
         
         // Stop camera stream if active
         this.stopCamera();
-        
-        // Stop speech recognition if active
-        if (this.recognition) {
-            this.recording = false;
-            try { this.recognition.stop(); } catch(e) {}
+
+        // Stop any active audio recording / release the microphone
+        this.recording = false;
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this._discardRecording = true;
+            try { this.mediaRecorder.stop(); } catch (e) {}
+        }
+        if (this.micStream) {
+            try { this.micStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            this.micStream = null;
         }
 
         // Remove global listeners
@@ -316,40 +334,10 @@ const app = createApp({
                 
                 if (this._isUnmounted) return;
 
-                // Initialize speech recognition if supported
-                if ('webkitSpeechRecognition' in window) {
-                    this.recognition = new webkitSpeechRecognition();
-                    this.recognition.continuous = true;
-                    this.recognition.interimResults = true;
-                    this.recognition.lang = 'en-US';
-                    
-                    this.recognition.onresult = (event) => {
-                        if (this._isUnmounted) return;
-                        let finalTranscript = '';
-                        for (let i = event.resultIndex; i < event.results.length; ++i) {
-                            if (event.results[i].isFinal) {
-                                finalTranscript += event.results[i][0].transcript;
-                            }
-                        }
-                        if (finalTranscript) {
-                            this.answer += (this.answer ? ' ' : '') + finalTranscript;
-                            this.resetInactivityTimer(); // Reset on voice activity
-                        }
-                    };
-
-                    this.recognition.onerror = (event) => {
-                        if (this._isUnmounted) return;
-                        console.error('Speech recognition error', event.error);
-                        this.recording = false;
-                    };
-                    
-                    this.recognition.onend = () => {
-                        if (this._isUnmounted) return;
-                        if (this.recording) {
-                            this.recognition.start();
-                        }
-                    };
-                }
+                // Speech-to-text records audio with MediaRecorder and transcribes it
+                // server-side via Groq Whisper. This is consistent across Chrome/Edge/Safari,
+                // unlike the browser Web Speech API which is unsupported or flaky on some of them.
+                this.speechSupported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
                 
                 // Start camera if enabled and faceapi is available
                 if (this.useCamera) {
@@ -602,9 +590,9 @@ const app = createApp({
             this.transcript.push({ role: 'user', content: userAnswer });
             this.answer = "";
             
-            // Stop recording if active
+            // Stop recording if active; discard the audio since we're sending typed text.
             if (this.recording) {
-                this.toggleMic();
+                this.cancelRecording();
             }
 
             this.thinking = true;
@@ -1037,29 +1025,161 @@ const app = createApp({
             }, 1000);
         },
 
-        // --- Audio & Speech ---
-        toggleMic() {
-            if (!this.recognition) {
+        scrollChatToBottom() {
+            const el = this.$refs.transcriptContainer;
+            if (el) el.scrollTop = el.scrollHeight;
+        },
+
+        // --- Audio & Speech (record -> Groq Whisper -> answer) ---
+        // autoSubmit: when the user stops recording themselves, the transcribed answer is
+        // submitted automatically. submitAnswer() uses cancelRecording() instead so a manual
+        // typed send never triggers a second submission.
+        toggleMic(autoSubmit = true) {
+            if (!this.speechSupported) {
                 Swal.fire({
-                    title: 'Error',
-                    text: 'Speech recognition is not supported in this browser.',
+                    title: 'Not Supported',
+                    text: 'Audio recording is not supported in this browser.',
                     icon: 'error',
                     confirmButtonColor: '#8b5cf6'
                 });
                 return;
             }
-            
+            if (this.transcribing) return; // busy transcribing the previous take
+
             if (this.recording) {
-                this.recognition.stop();
-                this.recording = false;
+                this._submitAfterStop = autoSubmit;
+                this.stopRecording();
             } else {
-                try {
-                    this.recognition.start();
-                    this.recording = true;
-                    this.mic = true;
-                } catch (e) {
-                    console.error("Mic start error", e);
+                this.startRecording();
+            }
+        },
+
+        async startRecording() {
+            try {
+                const constraints = {
+                    audio: this.selectedMicId ? { deviceId: { exact: this.selectedMicId } } : true
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                if (this._isUnmounted) {
+                    stream.getTracks().forEach(t => t.stop());
+                    return;
                 }
+                this.micStream = stream;
+                this.audioChunks = [];
+
+                // Pick a container/codec the browser can produce (webm/opus on Chromium, mp4 on Safari).
+                const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+                let mimeType = '';
+                for (const c of candidates) {
+                    if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) {
+                        mimeType = c;
+                        break;
+                    }
+                }
+                const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+                this.mediaRecorder = recorder;
+
+                recorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) this.audioChunks.push(e.data);
+                };
+                recorder.onstop = () => this.onRecordingStopped();
+
+                recorder.start();
+                this.recording = true;
+                this.mic = true;
+                this.resetInactivityTimer();
+            } catch (e) {
+                console.error('Mic start error', e);
+                this.recording = false;
+                if (this.micStream) {
+                    try { this.micStream.getTracks().forEach(t => t.stop()); } catch (_) {}
+                    this.micStream = null;
+                }
+                Swal.fire({
+                    title: 'Microphone Error',
+                    text: 'Could not access your microphone. Please check browser permissions.',
+                    icon: 'error',
+                    confirmButtonColor: '#8b5cf6'
+                });
+            }
+        },
+
+        stopRecording() {
+            this.recording = false;
+            if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                try { this.mediaRecorder.stop(); } catch (e) { console.error('Mic stop error', e); }
+            } else {
+                this.onRecordingStopped(); // recorder already gone — still clean up
+            }
+        },
+
+        // Stop recording without transcribing (used when the user sends a typed answer instead).
+        cancelRecording() {
+            this._discardRecording = true;
+            this._submitAfterStop = false;
+            this.stopRecording();
+        },
+
+        onRecordingStopped() {
+            const stream = this.micStream;
+            this.micStream = null;
+            if (stream) {
+                try { stream.getTracks().forEach(t => t.stop()); } catch (_) {}
+            }
+
+            const chunks = this.audioChunks || [];
+            this.audioChunks = [];
+            const mimeType = (this.mediaRecorder && this.mediaRecorder.mimeType) || 'audio/webm';
+            this.mediaRecorder = null;
+
+            if (this._discardRecording) {
+                this._discardRecording = false;
+                this._submitAfterStop = false;
+                return;
+            }
+            if (!chunks.length) {
+                this._submitAfterStop = false;
+                return;
+            }
+            this.transcribeAndHandle(new Blob(chunks, { type: mimeType }));
+        },
+
+        async transcribeAndHandle(blob) {
+            const shouldSubmit = this._submitAfterStop;
+            this._submitAfterStop = false;
+            this.transcribing = true;
+            try {
+                const ext = blob.type.includes('ogg') ? 'ogg' : (blob.type.includes('mp4') ? 'm4a' : 'webm');
+                const fd = new FormData();
+                fd.append('audio', blob, `answer.${ext}`);
+                const resp = await axios.post(window.icp.apiUrl('/api/interview/transcribe'), fd);
+                if (this._isUnmounted) return;
+
+                const text = (resp.data && resp.data.text ? resp.data.text : '').trim();
+                if (!text) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'No Speech Detected',
+                        text: 'We could not detect any speech. Please try again.',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    return;
+                }
+                this.answer += (this.answer ? ' ' : '') + text;
+                this.resetInactivityTimer();
+                if (shouldSubmit && this.sessionId && !this.submitting && this.answer.trim()) {
+                    this.submitAnswer();
+                }
+            } catch (e) {
+                if (this._isUnmounted) return;
+                console.error('Transcription failed', e);
+                const status = e && e.response ? e.response.status : 0;
+                const text = status === 503
+                    ? 'Speech-to-text is not configured on the server.'
+                    : 'Could not transcribe your audio. Please type your answer instead.';
+                Swal.fire({ title: 'Transcription Error', text, icon: 'error', confirmButtonColor: '#8b5cf6' });
+            } finally {
+                if (!this._isUnmounted) this.transcribing = false;
             }
         },
 

@@ -1,8 +1,12 @@
 from datetime import datetime, timezone, timedelta
 
-def get_malaysia_time():
-    """Returns current time in Malaysia timezone (UTC+8)"""
-    return datetime.now(timezone(timedelta(hours=8)))
+def get_india_time():
+    """Returns current time in India Standard Time (IST, UTC+5:30)."""
+    return datetime.now(timezone(timedelta(hours=5, minutes=30)))
+
+# Backward-compatible alias: timezone changed from Malaysia (UTC+8) to India (IST).
+# Existing callers import get_malaysia_time; keep it working without touching every site.
+get_malaysia_time = get_india_time
 
 def is_gibberish(text: str, strict: bool = True) -> bool:
     s = (text or "").strip()

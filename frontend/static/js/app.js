@@ -162,13 +162,8 @@ if (window.axios) {
   axios.interceptors.response.use(function (response) {
     return response;
   }, function (error) {
-    // Check for network errors (no response)
     if (!error.response) {
       console.warn("Network error or server unreachable:", error);
-      if (!navigator.onLine) {
-        showOfflineToast();
-        showOfflineOverlay();
-      }
     }
     
     if (error.response && error.response.status === 401) {
@@ -373,10 +368,10 @@ Object.assign(window.icp, {
         <div class="text-start small overflow-auto px-2" style="max-height: 400px; line-height: 1.6;">
           
           <h6 class="fw-bold">1. Acceptance of Terms</h6>
-          <p>By accessing or using ICP (Interview Coach Prep), you agree to be bound by these Terms and Conditions. These terms apply to all visitors, users, and others who access the service.</p>
+          <p>By accessing or using HireMate, you agree to be bound by these Terms and Conditions. These terms apply to all visitors, users, and others who access the service.</p>
           
           <h6 class="fw-bold">2. Service Description</h6>
-          <p>ICP provides an AI-powered platform for interview preparation, including mock interviews, resume analysis, and career guidance. The service is provided "as is" and "as available".</p>
+          <p>HireMate provides an AI-powered platform for interview preparation, including mock interviews, resume analysis, and career guidance. The service is provided "as is" and "as available".</p>
           
           <h6 class="fw-bold">3. User Accounts</h6>
           <p>You must provide accurate and complete information when creating an account. You are solely responsible for the activity that occurs on your account and must keep your password secure.</p>
@@ -385,10 +380,10 @@ Object.assign(window.icp, {
           <p>You agree not to use the service for any unlawful purpose or to conduct any activity that would violate the rights of others. This includes not attempting to reverse engineer the AI models or bypass any security features.</p>
           
           <h6 class="fw-bold">5. Intellectual Property</h6>
-          <p>The Service and its original content, features, and functionality are and will remain the exclusive property of ICP and its licensors. User-submitted content (like resumes) remains the property of the user, but you grant us a license to process it for the purpose of providing the service.</p>
+          <p>The Service and its original content, features, and functionality are and will remain the exclusive property of HireMate and its licensors. User-submitted content (like resumes) remains the property of the user, but you grant us a license to process it for the purpose of providing the service.</p>
           
           <h6 class="fw-bold">6. Limitation of Liability</h6>
-          <p>In no event shall ICP be liable for any indirect, incidental, special, or consequential damages resulting from your use of the service. AI feedback is for educational purposes only and does not guarantee job offers.</p>
+          <p>In no event shall HireMate be liable for any indirect, incidental, special, or consequential damages resulting from your use of the service. AI feedback is for educational purposes only and does not guarantee job offers.</p>
           
           <h6 class="fw-bold">7. Termination</h6>
           <p>We may terminate or suspend access to our Service immediately, without prior notice, for any reason whatsoever, including without limitation if you breach the Terms.</p>
@@ -496,51 +491,6 @@ if (document.readyState === "loading") {
   hideLoader();
 }
 
-// Offline/Online Detection
-const showOfflineToast = () => {
-  const toast = document.createElement('div');
-  toast.id = 'offline-toast';
-  toast.className = 'offline-toast';
-  toast.innerText = 'No internet connection. Please check your network.';
-  document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add('visible'), 10);
-};
-
-const hideOfflineToast = () => {
-  const toast = document.getElementById('offline-toast');
-  if (toast) {
-    toast.classList.remove('visible');
-    setTimeout(() => toast.remove(), 300);
-  }
-};
-
-const showOfflineOverlay = () => {
-  if (document.getElementById('offline-overlay')) return;
-  const overlay = document.createElement('div');
-  overlay.id = 'offline-overlay';
-  overlay.className = 'offline-overlay';
-  overlay.innerHTML = `
-    <div class="offline-card">
-      <div class="offline-icon">📶✖</div>
-      <div class="offline-title">You are offline</div>
-      <div class="offline-desc">Please check your internet connection and try again.</div>
-      <button id="offline-retry-btn" class="btn btn-primary btn-sm mt-2">Retry</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  const retryBtn = document.getElementById('offline-retry-btn');
-  if (retryBtn) {
-    retryBtn.addEventListener('click', () => {
-      // Show loading state on button
-      retryBtn.disabled = true;
-      retryBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Retrying...';
-      
-      // Attempt reload regardless of navigator.onLine (more reliable)
-      window.location.reload();
-    });
-  }
-};
-
 const setupTauriNavigation = () => {
   if (!icpState.isTauri) return;
   if (document.getElementById('tauri-nav-bar')) return;
@@ -586,27 +536,10 @@ const setupTauriNavigation = () => {
   observer.observe(document.querySelector('title'), { childList: true });
 };
 
-const hideOfflineOverlay = () => {
-  const el = document.getElementById('offline-overlay');
-  if (el) el.remove();
+const removeOfflineArtifacts = () => {
+  document.getElementById('offline-overlay')?.remove();
+  document.getElementById('offline-toast')?.remove();
 };
-
-window.addEventListener('offline', () => {
-  showOfflineToast();
-  showOfflineOverlay();
-});
-window.addEventListener('online', () => {
-  hideOfflineToast();
-  hideOfflineOverlay();
-  // Attempt to reload if they were on a blank page or just to refresh
-  window.location.reload();
-});
-
-// Initial check
-if (!navigator.onLine) {
-  showOfflineToast();
-  showOfflineOverlay();
-}
 
 // --- PWA & App Download Banner ---
 
@@ -654,7 +587,7 @@ function handleAppPromotion() {
           <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5" style="z-index: -1;"></div>
           <div class="row align-items-center g-3">
             <div class="col-lg-6 text-lg-start">
-              <h5 class="fw-bold mb-1">Take ICP with you!</h5>
+              <h5 class="fw-bold mb-1">Take HireMate with you!</h5>
               <p class="text-secondary small mb-lg-0">Get the official apps for your devices. <span class="opacity-50">(iOS & MacOS in development)</span></p>
             </div>
             <div class="col-lg-6 text-lg-end">
@@ -715,7 +648,7 @@ function injectAppPopUpBanner() {
             <i class="bi bi-phone-vibrate"></i>
           </div>
           <div class="text-start">
-            <div class="fw-bold text-white small">Experience ICP Everywhere</div>
+            <div class="fw-bold text-white small">Experience HireMate Everywhere</div>
             <div class="smaller text-secondary">Download our official apps for Windows and Android. <span class="opacity-50">iOS/Mac coming soon.</span></div>
           </div>
         </div>
@@ -792,7 +725,7 @@ function showAppModal() {
   `;
 
   Swal.fire({
-    title: 'Download ICP App',
+    title: 'Download HireMate App',
     html: content,
     showConfirmButton: false,
     showCloseButton: true,
@@ -831,36 +764,8 @@ function injectSidebarPromotion() {
   sidebarNav.appendChild(promoDiv);
 }
 
-/**
- * Handle Offline Detection and UI
- */
-function setupOfflineDetection() {
-  const overlay = document.createElement('div');
-  overlay.id = 'offline-overlay';
-  overlay.className = 'offline-overlay';
-  overlay.innerHTML = `
-    <div class="offline-icon"><i class="bi bi-wifi-off"></i></div>
-    <h2 class="offline-title">You're Offline</h2>
-    <p class="offline-message">It looks like you've lost your internet connection. Some features of ICP may be limited until you're back online.</p>
-    <button onclick="window.location.reload()" class="btn btn-primary offline-retry-btn">
-      <i class="bi bi-arrow-clockwise me-2"></i> Try Reconnecting
-    </button>
-  `;
-  document.body.appendChild(overlay);
-
-  const toggleOfflineUI = () => {
-    if (navigator.onLine) {
-      overlay.classList.remove('active');
-    } else {
-      overlay.classList.add('active');
-    }
-  };
-
-  window.addEventListener('online', toggleOfflineUI);
-  window.addEventListener('offline', toggleOfflineUI);
-  
-  // Initial check
-  toggleOfflineUI();
+function cleanupRemovedOfflineUI() {
+  removeOfflineArtifacts();
 }
 
 // Initialize everything on load
@@ -875,8 +780,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 1. Register Service Worker for PWA (with versioning to force update)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js?v=2').then(reg => {
-      console.log('ICP Service Worker registered (v2)');
+    navigator.serviceWorker.register('/sw.js?v=5').then(reg => {
+      console.log('HireMate Service Worker registered (v5)');
       
       // Check for updates
       reg.onupdatefound = () => {
@@ -893,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  setupOfflineDetection();
+  cleanupRemovedOfflineUI();
   handleAppPromotion();
   injectSidebarPromotion();
   

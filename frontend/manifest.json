@@ -1,12 +1,12 @@
 {
-  "name": "Interview Coach Prep",
-  "short_name": "ICP",
+  "name": "HireMate",
+  "short_name": "HireMate",
   "description": "Master your next interview with AI-powered mock interviews and resume feedback.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0f172a",
-  "theme_color": "#8b5cf6",
+  "background_color": "#f5f2ec",
+  "theme_color": "#141414",
   "scope": "/",
   "icons": [
     {

@@ -6,7 +6,7 @@ from .utils import get_malaysia_time
 async def check_daily_limit(user_id: str, limit_type: str, max_attempts: int):
     """
     Checks if a user has reached their daily limit for a specific action.
-    Resets at 00:00 Malaysia Time (GMT+8).
+    Resets at 00:00 IST (GMT+5:30).
     limit_type: 'daily_resume_count' or 'daily_interview_count'
     """
     oid = ObjectId(user_id)
@@ -15,20 +15,20 @@ async def check_daily_limit(user_id: str, limit_type: str, max_attempts: int):
         return True, 0
 
     now_my = get_malaysia_time()
-    # Reset at 00:00 MY time
+    # Reset at 00:00 IST
     reset_at = u.get("daily_reset_at")
     
-    # Ensure reset_at is timezone-aware and in Malaysia time
+    # Ensure reset_at is timezone-aware and in India (IST) time
     if reset_at:
         if reset_at.tzinfo is None:
             # MongoDB returns naive datetimes in UTC. 
-            # We must mark it as UTC first, then convert to Malaysia time.
+            # We must mark it as UTC first, then convert to India (IST) time.
             reset_at = reset_at.replace(tzinfo=timezone.utc).astimezone(timezone(timedelta(hours=8)))
         else:
-            # If it's already aware, just convert to Malaysia time
+            # If it's already aware, just convert to India (IST) time
             reset_at = reset_at.astimezone(timezone(timedelta(hours=8)))
     
-    # Start of today in Malaysia time
+    # Start of today in India (IST) time
     today_start_my = now_my.replace(hour=0, minute=0, second=0, microsecond=0)
     
     needs_reset = False

@@ -119,7 +119,7 @@ async function sendSecurityAlertEmail(adminEmails, offenderEmail, ipAddress, rea
     }
 
     const results = [];
-    const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kuala_Lumpur' });
+    const timestamp = new Date().toLocaleString('en-GB', { timeZone: 'Asia/Kolkata' });
     
     for (const adminEmail of adminEmails) {
         const templateParams = {

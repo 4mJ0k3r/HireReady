@@ -32,7 +32,7 @@ async def search_jobs(
         referer += f"&l={location}"
 
     params = {
-        'locale_code': 'en_MY', # Default to Malaysia since it's an FYP project, but Careerjet handles global
+        'locale_code': 'en_IN', # Default to India, but Careerjet handles global
         'keywords': keywords,
         'location': location or "",
         'page': page,

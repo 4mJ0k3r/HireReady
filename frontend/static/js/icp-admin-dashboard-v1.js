@@ -75,7 +75,7 @@ const app = createApp({
             if (window.dayjs) {
                 return dayjs(dateStr).format('M/D/YYYY, h:mm:ss A');
             }
-            return new Date(dateStr).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' });
+            return new Date(dateStr).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         },
         startTimer() {
             if (this.timerId) return;

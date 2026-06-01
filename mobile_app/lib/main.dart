@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         defaultTargetPlatform == TargetPlatform.iOS;
 
     return MaterialApp(
-      title: 'Interview Coach Prep',
+      title: 'HireMate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF007BFF)),
@@ -42,7 +42,7 @@ class WindowsFallbackPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Interview Coach Prep')),
+      appBar: AppBar(title: const Text('HireMate')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

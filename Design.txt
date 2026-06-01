@@ -1,0 +1,99 @@
+
+
+## /login.html
+
+Design a premium dark-themed login page for an AI interview coaching platform called "ICP". Use a deep navy-to-black gradient background (`#0f172a` → `#0a0a12`) with subtle animated mesh/grain texture. Center a frosted-glass card (backdrop-filter blur 24px, `rgba(255,255,255,0.04)` fill, 1px `rgba(255,255,255,0.08)` border, 24px border-radius). Card has a thin 3px gradient top-border (electric blue `#2563eb` → purple `#8b5cf6`). Inside: "ICP" logo mark top-center, "Welcome Back" heading in white 600-weight Inter, soft gray subtitle. Email input with left-aligned mail icon, password input with lock icon + eye toggle — all inputs dark (`#1a263b`), rounded 12px, subtle focus glow ring in blue. "Sign In" button: full-width gradient (`#2563eb` → `#6c63ff`), 12px radius, hover lift + glow shadow. Below: "Forgot Password?" link in muted blue, divider line, "Don't have an account? Create Account" link. Footer: Terms & Privacy links. Add floating soft-glow orbs in background (blue and purple, blurred 200px). Responsive: card max-width 440px, stacks cleanly on mobile. Micro-animations: card fades up on load, inputs highlight with smooth 0.3s transitions, button has subtle scale on hover.
+
+---
+
+## /register.html
+
+Design a premium dark registration page matching the login aesthetic. Same gradient background with floating glow orbs. Frosted-glass card (max-width 480px) with gradient top-bar accent. Header: "Create Account" in bold Inter. Form fields: Full Name (user icon), Email (mail icon), Password (lock icon + eye toggle), Confirm Password (lock icon + eye toggle). Below password field: animated password strength meter — a slim progress bar that transitions through red → orange → amber → green with labels "Weak / Fair / Strong / Very Strong". Below that: a password requirements checklist (5 items) with smooth animated green checkmarks appearing as each criterion is met (8+ chars, uppercase, lowercase, number, special char). Confirm password shows a match/mismatch indicator with green check or red X and text. Agreement checkbox with "I agree to Terms & Conditions" text. Full-width gradient submit button "Create Account" with loading spinner state. Bottom: "Already have an account? Login" link. All transitions 0.3s ease. Card slides up on load with staggered field animations.
+
+---
+
+## /forgot_password.html
+
+Design a minimal, elegant dark-themed forgot password page. Same deep navy gradient background. Compact frosted-glass card (max-width 420px) centered on screen. Top: lock/key icon in a soft blue glowing circle (pulse animation). Heading: "Forgot Password?" in white Inter 600. Subtitle in muted gray: "Enter your email and we'll send a reset link." Single email input with mail icon, dark background, blue focus ring. Full-width gradient button "Send Reset Link" with loading spinner state. Below: "Back to Login" link with left-arrow icon. Card fades in on load. Keep it clean and focused — minimal distractions. Success state: card content transitions to a paper-plane icon animation with "Check your inbox" message and email address shown in a highlighted pill badge.
+
+---
+
+## /reset_password.html
+
+Design a dark-themed password reset page. Same background treatment as auth pages. Frosted-glass card centered (max-width 440px). Top: shield/key icon with green accent glow. Heading: "Reset Your Password" in white Inter. Show user's email in a muted pill badge below heading. Two password fields: "New Password" and "Confirm Password" — each with lock icon and eye toggle. Include the same password strength meter and criteria checklist as the register page (animated green checkmarks). Password match indicator below confirm field. Full-width gradient button "Update Password". Success state: card morphs to show a large animated green checkmark, "Password Updated Successfully!" text, and "Login Now" button with arrow. All transitions smooth, 0.3s ease. Card entrance animation: fade-up with slight blur-to-sharp.
+
+---
+
+## /verify.html
+
+Design a sleek OTP verification page on dark theme. Same gradient background. Frosted-glass card centered (max-width 440px). Top: animated envelope icon that opens to reveal a checkmark (CSS keyframe animation, looping subtly). Heading: "Verify Your Email" in white Inter 600. Subtitle showing the user's email in a highlighted text span. Six individual OTP input boxes in a row — each 52×56px, dark fill (`#1a263b`), rounded 12px, centered large monospace text (24px), `rgba(255,255,255,0.1)` border. On focus: the active box gets a blue border glow + slight scale-up. Auto-advance cursor to next box on digit entry. Support paste for full 6-digit code. Below boxes: countdown timer "Code expires in 1:59" with animated seconds, timer turns red below 30s. "Resend Code" link (disabled/grayed during countdown, blue when active). Full-width gradient "Verify Account" button. Success: card transitions to green checkmark animation with "Email Verified!" and redirect countdown.
+
+---
+
+## /cta.html
+
+Design an immersive onboarding landing page for ICP. Dark gradient background with large decorative gradient blobs (blue and purple, blurred). Top: glass navbar with "ICP" brand and conditional Login/Register or Dashboard buttons. Hero section: large glass card centered with a glowing SVG icon (trophy/rocket), massive display heading "The Ultimate Career Launchpad" in gradient text (blue → purple), descriptive subtitle paragraph. CTA buttons: "Create Account" (solid gradient pill) and "Sign In" (outline pill with hover fill). Below: 4-column feature grid on dark semi-transparent cards — AI Coaching (brain icon), Resume Analysis (document-search icon), Resume Builder (edit icon), Readiness Score (chart icon) — each card has a colored top-accent line matching its icon color, hover lifts with glow. Stats section: 3 glass pill badges in a row — "100% AI Driven", "Real-time Feedback", "Secure & Private". FAQ section: 2-column accordion-style cards with smooth expand/collapse. Footer: Terms & Privacy links. Animations: hero content staggers in from bottom, feature cards fade-in on scroll, stats badges slide in.
+
+---
+
+## /dashboard.html
+
+Design a comprehensive dark-themed dashboard with sidebar navigation. **Sidebar** (260px, fixed left): dark navy (`#0f172a`), "ICP" logo at top, nav links with icons — Dashboard (active, blue left-border + blue tint bg), Resume Builder, Search Job, View History, Mock Interview. User profile card at bottom with avatar circle, name, email. Collapse toggle. **Top bar**: transparent, user avatar + notification bell right-aligned. **Main content**: Welcome glass card with gradient mesh background, "Welcome back, [Name]" heading, motivational subtitle. Below: the resume analysis card — a large glass card with target job title input, drag-and-drop upload zone (dashed border, file icon, "Drop your resume here" text, supported formats badge). Upload zone hover: border turns solid blue, background lightens, glow shadow. After analysis: animated score circle (conic-gradient ring, large centered number), 4 feedback cards in a 2×2 grid — Advantages (green accent), Disadvantages (red accent), Suggestions (amber accent), Keywords (blue accent, pill tags). Each card has icon header and bullet-point lists. Action buttons row: Export PDF, Enter Interview, Refine Resume, Search Jobs — each as a pill button with icon. Mobile: sidebar collapses to hamburger, cards stack single-column. Micro-animations throughout: score ring fills up animated, cards stagger fade-in.
+
+---
+
+## /resume_builder.html
+
+Design a professional two-panel resume builder interface. Dark theme. **Left panel** (45% width, scrollable): "Resume Information" header, 7 horizontal pill tabs (Basics, Education, Experience, Projects, Skills, Others, Extra) — active tab has blue bg pill. Each tab reveals its form section with dark input fields, textarea blocks, and dynamic add/remove entry buttons. Entries are mini-cards with dark fill and subtle border. Action verb suggestion badges (small blue/purple pills) appear near bullet-point textareas. Add buttons are dashed-border circles with + icon. **Right panel** (55% width, sticky): "Resume Preview" header with theme dropdown selector (Professional, Modern, Classic etc.) and "Download PDF" gradient button. The preview area shows a white A4-ratio resume with professional typography rendered live as user types. Preview toolbar below header: zoom controls, page navigation (Previous/Next arrows with page counter). Glass card container for the preview with subtle shadow depth. **Navbar**: same as dashboard with "Resume Builder" active. Responsive: on tablet/mobile, panels stack vertically with preview collapsible. Panel divider: subtle 1px border with drag handle for resize. Smooth transitions on tab switch, entry add/remove animations (slide in/out).
+
+---
+
+## /find-jobs.html
+
+Design a job search page with dark theme. Same sidebar/navbar structure as dashboard with "Search Job" active. Main content area: large heading "Find Your Dream Job" with gradient text accent, subtitle "Discover opportunities matched to your skills". Below: a contextual alert card (blue-tinted glass) suggesting "Analyze your resume first for better job matches" with link to Dashboard — shown conditionally. Main section: large glass card container housing the embedded Careerjet job search widget. The container card has rounded corners (16px), padding, and subtle inner shadow to frame the external widget cleanly. "Powered by Careerjet" attribution text in muted small font below the card. Overall layout is clean and content-focused with generous whitespace. Card entrance animation: fade-up. Responsive: full-width on mobile, centered max-width on desktop.
+
+---
+
+## /history.html
+
+Design an interview history page with dark theme. Same sidebar/navbar layout with "View History" active. Header: "Interview History" with subtitle "Track your progress and review past sessions". Filter bar: "View Progress Analysis" button (opens chart modal) on the left, sort dropdown ("Latest First" / "Oldest First") on the right — both in dark glass style. History items: a vertical list of glass cards, each showing — status badge (green "Completed" or amber "In Progress"), question count, start/end timestamps, and action buttons row (View Details pill, Resume Session/Ended pill, Delete icon button). On "View Details" click: card smoothly expands downward revealing — transcript section with Q&A pairs (questions in blue-bordered left-bar cards, answers in default cards), large readiness score display (circular score /100 with color: green >70, amber 40-70, red <40, with glow effect), and AI performance feedback text block in a dark card. Empty state: large centered icon, "No interviews yet" text, "Start Your First Interview" gradient button. Cards have hover lift effect. Expand/collapse is animated with smooth height transition. Score circle has a count-up number animation on reveal.
+
+---
+
+## /interview.html
+
+Design the core mock interview room — dark, focused, distraction-free. **Top section**: compact navbar with session controls. **Left panel** (configuration, collapsible): glass card with — question limit selector (10/15/20), difficulty dropdown (Beginner/Intermediate/Advanced), toggle switches for Microphone, Camera, AI Speaker with device selectors. Status indicator: colored dot (green=active, blue=ready, gray=idle) with status text. Attempt counter badge. **Center panel** (main chat area): sticky header bar with AI interviewer avatar (robot icon that animates between idle/thinking/speaking states — idle glow, thinking pulse, speaking wave), interviewer name "AI Interviewer", question counter badge, session timer. Chat transcript below: left-aligned AI bubbles (dark glass fill, rounded, max-width 75%) and right-aligned user bubbles (blue semi-transparent fill). Auto-scroll to bottom. **Bottom bar** (fixed): auto-expanding textarea with placeholder "Type your answer...", send button (blue, icon), microphone toggle button (pulses red when recording). **Floating camera preview** (bottom-right corner, 200×150px): rounded card showing live webcam feed with "Live Preview" header and face detection status badge. **Post-session overlay**: readiness score circle (large, animated fill, /100), color-coded feedback text, "Back to History" button. Dark immersive background, minimal chrome. Animations: message bubbles slide in, typing indicator dots, interviewer state transitions.
+
+---
+
+## /icp-admin-auth-9f2d8b4e.html
+
+Design a high-security admin login page with a dark, authoritative aesthetic. Deep black background (`#0a0a0f`). Centered frosted-glass card with amber/gold accent theme instead of blue — amber gradient top-border, amber icon glows. Top: shield icon in an amber-glowing circle. Heading: "Admin Control Center" in white Inter 700. Three form fields with amber focus accents: Administrator Email (restricted to @icp-solution.com, shown as hint), Security Password (with eye toggle), Admin Invite Code (monospace font input). Inputs have dark fill with amber-tinted borders on focus. "Enter Admin Panel" button: full-width, amber gradient (`#f59e0b` → `#d97706`), dark text, hover glow. Below form: "RESTRICTED: AUTHORIZED ACCESS ONLY" warning banner — dark red-tinted glass card with caution icon, bold warning text. "Back to main site" subtle link at very bottom. The overall feel should be serious, exclusive, and high-security. Subtle scan-line or grid-pattern overlay on background for a "command center" vibe. Card fade-in with slight delay.
+
+---
+
+## /icp-admin-portal-5e6a1c3d.html
+
+Design an admin dashboard for candidate resume management. Dark theme with amber admin branding. **Navbar**: "ICP Admin" logo with amber "ADMIN" badge, admin account dropdown, logout button — glass nav with amber accent line at bottom. **Session timer badge**: floating top-right, shows countdown, turns red/pulsing when critical (<60s). **Main content**: "Candidate Resume Management" heading with "Administrator Portal" amber badge. **Filter bar**: glass card with search input (search icon), status dropdown (Any/Pending/Approved/Rejected), tag input, and "Filter" amber-accent button. **Data table**: dark table with subtle row striping, columns — Filename (clickable link), Status (colored badges: amber "Pending", green "Approved", red "Rejected"), Tags (pill badges), Created date, Notes (truncated preview), Actions (Details button, Notify button). Table header: uppercase muted text, sticky. **Pagination bar**: Previous/Next buttons with page input and item range text. **Detail panel** (slides open below table when viewing a record): glass card with filename display, status dropdown (amber-styled), editable notes textarea (amber focus glow), tags input, and action buttons — Save (amber), Delete (red), Close (gray). **Empty state**: folder icon, "No Resumes Found", "Refresh List" button. Clean data-dense layout with hover row highlights. Responsive: table scrolls horizontally on mobile.
+
+---
+
+## /icp-admin-view-2b8f4a10.html
+
+Design an admin file preview page. Dark theme with amber admin accents. **Navbar**: "ICP Admin" brand linked back to portal, "Back to Admin Panel" amber pill button, admin account dropdown, logout. **Session timer**: subtle badge, critical state animation. **Main content**: clean glass card container with — filename heading at top (large, white, truncated with ellipsis if too long), error alert section (red-tinted glass card, hidden by default). **For PDF files**: full-width iframe preview embedded in the card, 80vh height, no visible border, dark rounded frame. **For non-PDF files**: informational message "PDF preview only", "Open File" amber button to open/download in new tab, and extracted text displayed in a `<pre>` block with monospace font, dark code-block styling (slightly lighter bg, left amber border, horizontal scroll). Layout is minimal and content-focused — the file preview takes center stage. Card entrance: fade-in.
+
+---
+
+## /frontend/index.html
+
+Design a stunning marketing landing page for ICP. Dark gradient background with animated decorative blobs. **Glass navbar**: "ICP" logo, conditional auth buttons (Login/Register) or Dashboard button + account dropdown. Smooth-scroll anchors. **Hero section**: gradient mesh background, left column — massive display heading "Master Your Next Interview" with gradient text (blue→cyan), paragraph description, two CTA pill buttons ("Get Started" gradient fill, "Learn More" outline). Right column — glass card "How It Works" with 5 numbered steps, each with icon, title, description, connected by a subtle vertical line/dots. **Features section**: "Why Choose ICP?" heading, 4-column grid of feature cards (glass fill, colored top-border per card — blue for Plain Feedback, green for Time & Cost Aware, purple for Resume Builder, cyan for Search Job). Each card: icon in colored circle, heading, description. Hover: lift + border-color glow + shadow. **Animations**: hero content staggers in (heading, subtitle, buttons, card — each with 0.1s delay), feature cards fade-in-up on scroll with stagger. Responsive: single column on mobile, hamburger nav. Premium feel with generous spacing, modern typography, depth through layered glass effects.
+
+---
+
+## /mobile_app/web/index.html
+
+Design a minimal Flutter web app loading shell. Pure white or dark background (matching app theme). Centered loading state: the "ICP" logo mark (compact, stylized) with a smooth indeterminate progress indicator below it — either a slim gradient progress bar with shimmer animation, or a circular spinner using the brand blue color (`#2563eb`). Below spinner: "Loading..." text in muted gray, small font. The page should feel instant and branded — users see the ICP identity immediately while Flutter bootstraps. Include proper PWA meta tags, apple-touch-icon, favicon, and manifest link. No visible UI beyond the loader — all app UI is rendered by Flutter. Keep the HTML/CSS minimal and inline (no external stylesheet needed). Spinner animation: smooth infinite rotation or shimmer, pure CSS (no JS dependencies for the loader itself).
+
+---
+
+That's all 16 pages! Each prompt captures the current functionality while pushing the design toward a premium, modern dark glassmorphism aesthetic with micro-animations, polished interactions, and consistent branding. You can feed these directly to a design tool or AI to generate new visual mockups.

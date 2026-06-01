@@ -6,7 +6,12 @@ const app = createApp({
             username: '',
             password: '',
             showPassword: false,
-            loading: false
+            loading: false,
+            testCredentials: {
+                enabled: true,
+                email: 'test@example.com',
+                password: 'Test123!'
+            }
         };
     },
     mounted() {
@@ -20,11 +25,25 @@ const app = createApp({
             localStorage.removeItem('interview_voice_gender');
             localStorage.removeItem('interview_session_id');
         } catch(e) {}
+        this.loadTestCredentials();
     },
     watch: {},
     methods: {
         showTerms() { window.icp.showTerms(); },
         showPrivacy() { window.icp.showPrivacy(); },
+        async loadTestCredentials() {
+            try {
+                const response = await axios.get(window.icp.apiUrl('/api/auth/config'));
+                const cfg = response.data || {};
+                this.testCredentials.enabled = !!cfg.test_credentials_enabled;
+                if (cfg.test_user_email) this.testCredentials.email = cfg.test_user_email;
+                if (cfg.test_user_password) this.testCredentials.password = cfg.test_user_password;
+            } catch (_) {}
+        },
+        useTestCredentials() {
+            this.username = this.testCredentials.email;
+            this.password = this.testCredentials.password;
+        },
         promptFields() {
             if (!this.username || !this.password) {
                 Swal.fire({

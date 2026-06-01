@@ -8,11 +8,18 @@ const app = createApp({
             inviteCode: '',
             showPassword: false,
             loading: false,
-            logged: false
+            logged: false,
+            testCredentials: {
+                enabled: true,
+                email: 'admin@icp-solution.com',
+                password: 'Admin123!',
+                inviteCode: 'ICP-DEMO-ADMIN'
+            }
         };
     },
     mounted() {
         this.checkAuth();
+        this.loadTestCredentials();
         this._authListener = () => this.checkAuth();
         window.addEventListener('auth:changed', this._authListener);
     },
@@ -25,6 +32,21 @@ const app = createApp({
         },
         togglePassword() {
             this.showPassword = !this.showPassword;
+        },
+        async loadTestCredentials() {
+            try {
+                const response = await axios.get(window.icp.apiUrl('/api/auth/config'));
+                const cfg = response.data || {};
+                this.testCredentials.enabled = !!cfg.test_credentials_enabled;
+                if (cfg.test_admin_email) this.testCredentials.email = cfg.test_admin_email;
+                if (cfg.test_admin_password) this.testCredentials.password = cfg.test_admin_password;
+                if (cfg.test_admin_invite_code) this.testCredentials.inviteCode = cfg.test_admin_invite_code;
+            } catch (_) {}
+        },
+        useTestCredentials() {
+            this.email = this.testCredentials.email;
+            this.password = this.testCredentials.password;
+            this.inviteCode = this.testCredentials.inviteCode;
         },
         promptFields() {
             if (!this.email || !this.password) {

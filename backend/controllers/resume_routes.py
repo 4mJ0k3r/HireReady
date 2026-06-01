@@ -33,7 +33,7 @@ async def upload_resume(
     
     can_upload, remaining = await check_daily_limit(current["id"], "daily_resume_count", 5)
     if not can_upload:
-        raise HTTPException(status_code=429, detail="Daily resume analysis limit reached. Resets at 00:00 Malaysia Time.")
+        raise HTTPException(status_code=429, detail="Daily resume analysis limit reached. Resets at 00:00 IST.")
 
     if is_gibberish(job_title):
         raise HTTPException(status_code=400, detail="The job title you entered appears to be invalid or gibberish. Please provide a real job title (e.g., 'Software Engineer').")
@@ -151,7 +151,7 @@ async def manual_upload_profile(
 
     can_upload, remaining = await check_daily_limit(current["id"], "daily_resume_count", 5)
     if not can_upload:
-        raise HTTPException(status_code=429, detail="Daily profile analysis limit reached. Resets at 00:00 Malaysia Time.")
+        raise HTTPException(status_code=429, detail="Daily profile analysis limit reached. Resets at 00:00 IST.")
 
     # Construct virtual resume text
     text = f"""

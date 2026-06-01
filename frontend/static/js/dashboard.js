@@ -778,7 +778,7 @@ const app = createApp({
       doc.text('Resume Analysis Report', 20, 20);
       doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
-      const date = new Date().toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' });
+      const date = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
       const job = localStorage.getItem('target_job_title') || 'Not specified';
       doc.text(`Date: ${date}`, 20, 30);
       doc.text(`Target Role: ${job}`, 20, 35);

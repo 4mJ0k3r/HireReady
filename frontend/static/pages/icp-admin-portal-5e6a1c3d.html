@@ -6,6 +6,7 @@
   <title>Admin Panel</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <!-- Vue 3 -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <!-- Axios -->
@@ -15,7 +16,7 @@
   <!-- Day.js -->
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   
-  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="stylesheet" href="/static/css/styles.css?v=2.0">
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     [v-cloak] { display: none !important; }
@@ -32,7 +33,7 @@
     <nav class="navbar navbar-dark glass-nav">
       <div class="container d-flex align-items-center">
         <div class="d-flex align-items-center gap-3">
-          <a class="navbar-brand" href="/static/pages/icp-admin-portal-5e6a1c3d.html">ICP Admin</a>
+          <a class="navbar-brand" href="/static/pages/icp-admin-portal-5e6a1c3d.html">HireMate Admin</a>
           <a class="btn btn-outline-warning btn-sm" href="/static/pages/icp-admin-auth-9f2d8b4e.html" v-if="!logged">Admin Login</a>
         </div>
         <div class="ms-auto d-flex align-items-center gap-2">
@@ -219,7 +220,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Load Axios first via script tag above, then app.js which configures interceptors -->
-  <script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js?v=1.5"></script>
   <script src="/static/js/email_service.js"></script>
   <script src="/static/js/icp-admin-dashboard-v1.js"></script>
 </body>

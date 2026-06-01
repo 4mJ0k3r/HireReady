@@ -18,10 +18,51 @@ from ..core.config import (
     EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID,
     ADMIN_EMAILJS_PUBLIC_KEY, ADMIN_EMAILJS_SERVICE_ID, ADMIN_EMAILJS_TEMPLATE_ID,
     ADMIN_ALERT_EMAILJS_PUBLIC_KEY, ADMIN_ALERT_EMAILJS_SERVICE_ID, ADMIN_ALERT_EMAILJS_TEMPLATE_ID,
-    CAREERJET_WIDGET_ID
+    CAREERJET_WIDGET_ID,
+    ENABLE_TEST_CREDENTIALS, TEST_USER_EMAIL, TEST_USER_PASSWORD,
+    TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD, TEST_ADMIN_INVITE_CODE
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+async def ensure_test_account(email: str, password: str, role: str, name: str):
+    if not ENABLE_TEST_CREDENTIALS:
+        return
+
+    now = get_malaysia_time()
+    doc = {
+        "email": email,
+        "password_hash": hash_password(password),
+        "name": name,
+        "role": role,
+        "last_login_ip": "127.0.0.1",
+        "is_verified": True,
+        "failed_login_attempts": 0,
+        "lockout_until": None,
+        "failed_invite_attempts": 0,
+        "invite_lockout_until": None,
+        "weekly_question_count": 0,
+        "weekly_reset_at": now,
+        "daily_resume_count": 0,
+        "daily_interview_count": 0,
+        "daily_question_count": 0,
+        "daily_reset_at": now,
+    }
+    if role == "user":
+        doc.update({
+            "has_analyzed": True,
+            "target_job_title": "Software Engineer",
+            "target_location": "Kuala Lumpur",
+        })
+
+    await users.update_one(
+        {"email": email},
+        {
+            "$set": doc,
+            "$setOnInsert": {"created_at": now}
+        },
+        upsert=True
+    )
 
 @router.get("/config")
 async def get_auth_config():
@@ -36,7 +77,13 @@ async def get_auth_config():
         "admin_alert_emailjs_public_key": ADMIN_ALERT_EMAILJS_PUBLIC_KEY,
         "admin_alert_emailjs_service_id": ADMIN_ALERT_EMAILJS_SERVICE_ID,
         "admin_alert_emailjs_template_id": ADMIN_ALERT_EMAILJS_TEMPLATE_ID,
-        "careerjet_widget_id": CAREERJET_WIDGET_ID
+        "careerjet_widget_id": CAREERJET_WIDGET_ID,
+        "test_credentials_enabled": ENABLE_TEST_CREDENTIALS,
+        "test_user_email": TEST_USER_EMAIL if ENABLE_TEST_CREDENTIALS else "",
+        "test_user_password": TEST_USER_PASSWORD if ENABLE_TEST_CREDENTIALS else "",
+        "test_admin_email": TEST_ADMIN_EMAIL if ENABLE_TEST_CREDENTIALS else "",
+        "test_admin_password": TEST_ADMIN_PASSWORD if ENABLE_TEST_CREDENTIALS else "",
+        "test_admin_invite_code": TEST_ADMIN_INVITE_CODE if ENABLE_TEST_CREDENTIALS else "",
     }
 
 @router.post("/register", dependencies=[Depends(rate_limit)])
@@ -146,6 +193,9 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
     # Ensure username is stripped and lowercase
     username = str(form_data.username).strip().lower()
     ip_address = request.client.host if request.client else "unknown"
+
+    if ENABLE_TEST_CREDENTIALS and username == TEST_USER_EMAIL.lower() and form_data.password == TEST_USER_PASSWORD:
+        await ensure_test_account(TEST_USER_EMAIL.lower(), TEST_USER_PASSWORD, "user", "Test User")
     
     user = await users.find_one({"email": username})
     if not user:
@@ -232,6 +282,9 @@ async def admin_login(
     # Ensure username is stripped and lowercase
     username = str(form_data.username).strip().lower()
     ip_address = request.client.host if request.client else "unknown"
+
+    if ENABLE_TEST_CREDENTIALS and username == TEST_ADMIN_EMAIL.lower():
+        await ensure_test_account(TEST_ADMIN_EMAIL.lower(), TEST_ADMIN_PASSWORD, "super_admin", "Demo Admin")
     
     # Check email domain restriction
     if not username.endswith("@icp-solution.com"):
@@ -285,7 +338,12 @@ async def admin_login(
 
     # 3. Verify Invite Code
     expected_invite_code = os.getenv("ADMIN_INVITE_CODE")
-    if not expected_invite_code or invite_code != expected_invite_code:
+    test_invite_valid = (
+        ENABLE_TEST_CREDENTIALS
+        and username == TEST_ADMIN_EMAIL.lower()
+        and invite_code == TEST_ADMIN_INVITE_CODE
+    )
+    if (not expected_invite_code or invite_code != expected_invite_code) and not test_invite_valid:
         current_invite_attempts = user.get("failed_invite_attempts", 0) + 1
         
         if current_invite_attempts >= 5:
