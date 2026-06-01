@@ -1,7 +1,6 @@
 services:
-  # Unified Service (Nginx + Python/FastAPI)
   - type: web
-    name: interview_coach_prep
+    name: hiremate
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free
